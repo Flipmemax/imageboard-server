@@ -27,6 +27,22 @@ router.get("/:imageId", async (req, res, next) => {
   }
 });
 
+router.get("/:userId/imagefeed", async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.userId);
+    const user = await User.findByPk(userId, {
+      include: { model: Image },
+    });
+    if (user) {
+      res.send(user);
+    } else {
+      res.status(404).send("User not found");
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/:userId/newimage", async (req, res, next) => {
   try {
     const userId = parseInt(req.params.userId);
