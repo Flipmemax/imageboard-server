@@ -1,4 +1,4 @@
-const { Router, response } = require("express");
+const { Router } = require("express");
 const Image = require("../models").image;
 
 const router = new Router();
@@ -7,6 +7,20 @@ router.get("/", async (req, res, next) => {
   try {
     const allImages = await Image.findAll();
     res.send(allImages);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:imageId", async (req, res, next) => {
+  try {
+    const imageId = parseInt(req.params.imageId);
+    const image = await Image.findByPk(imageId);
+    if (!image) {
+      res.status(404).send("No images found");
+    } else {
+      res.send(image);
+    }
   } catch (error) {
     next(error);
   }
