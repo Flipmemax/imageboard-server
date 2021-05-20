@@ -1,13 +1,15 @@
 const { Router, response } = require("express");
 const Image = require("../models").image;
 const User = require("../models").user;
-
 const router = new Router();
+const authMiddleware = require("../auth/middleware");
 
 router.get("/", async (req, res, next) => {
+  const limit = Math.min(req.query.limit || 25, 500);
+  const offset = req.query.offset || 0;
   try {
-    const allImages = await Image.findAll();
-    res.send(allImages);
+    const result = await Image.findAndCountAll({ limit, offset });
+    res.send({ images: result.rows, total: result.count });
   } catch (error) {
     next(error);
   }
@@ -28,10 +30,12 @@ router.get("/:imageId", async (req, res, next) => {
 });
 
 router.get("/:userId/imagefeed", async (req, res, next) => {
+  const limit = Math.min(req.query.limit || 25, 500);
+  const offset = req.query.offset || 0;
   try {
     const userId = parseInt(req.params.userId);
     const user = await User.findByPk(userId, {
-      include: { model: Image },
+      include: { model: Image, limit, offset },
     });
     if (user) {
       res.send(user);
@@ -43,7 +47,7 @@ router.get("/:userId/imagefeed", async (req, res, next) => {
   }
 });
 
-router.post("/:userId/newimage", async (req, res, next) => {
+router.post("/:userId/newimage", authMiddleware, async (req, res, next) => {
   try {
     const userId = parseInt(req.params.userId);
     const user = await User.findByPk(userId);

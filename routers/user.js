@@ -1,14 +1,15 @@
 const { Router } = require("express");
 const User = require("../models").user;
 const bcrypt = require("bcrypt");
-const authMiddleware = require("../auth/middleware");
 
 const router = new Router();
 
-router.get("/", authMiddleware, async (req, res, next) => {
+router.get("/", async (req, res, next) => {
+  const limit = Math.min(req.query.limit || 25, 500);
+  const offset = req.query.offset || 0;
   try {
-    const allUsers = await User.findAll();
-    res.send(allUsers);
+    const result = await User.findAndCountAll({ limit, offset });
+    res.send({ users: result.rows, total: result.count });
   } catch (error) {
     next(error);
   }
