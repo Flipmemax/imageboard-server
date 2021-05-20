@@ -1,6 +1,7 @@
 const { Router } = require("express");
-const User = require("../models").user;
 const { toJWT, toData } = require("../auth/jwt");
+const bcrypt = require("bcrypt");
+const User = require("../models").user;
 const router = new Router();
 
 router.post("/login", async (req, res, next) => {
@@ -12,7 +13,7 @@ router.post("/login", async (req, res, next) => {
       return res.status(400).send("Wrong credentials");
     }
 
-    const validPassword = password === user.password;
+    const validPassword = bcrypt.compareSync(password, user.password);
 
     if (validPassword) {
       console.log("Valid!");
