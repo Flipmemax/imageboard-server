@@ -12,4 +12,18 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+router.post("/newimage", async (req, res, next) => {
+  try {
+    const { title, url } = req.body;
+    if (!title || !url) {
+      res.status(400).send("must provide correct paramaters");
+    } else {
+      const newImage = await Image.create(req.body);
+      res.json(newImage);
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = router;
