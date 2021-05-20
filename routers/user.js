@@ -1,5 +1,6 @@
 const { Router } = require("express");
 const User = require("../models").user;
+const bcrypt = require("bcrypt");
 
 const router = new Router();
 
@@ -22,7 +23,7 @@ router.post("/newuser", async (req, res, next) => {
       const newUser = await User.create({
         fullname,
         email,
-        password,
+        password: bcrypt.hashSync(password, 10),
       });
       //both of the above options, after else, work the same. But the 2nd one makes sure no unwanted parameters are passed.
       res.json(newUser);
