@@ -1,8 +1,9 @@
 const { Router } = require("express");
-const { toJWT, toData } = require("../auth/jwt");
+const { toJWT } = require("../auth/jwt");
 const bcrypt = require("bcrypt");
 const User = require("../models").user;
 const router = new Router();
+const authMiddleware = require("../auth/middleware");
 
 router.post("/login", async (req, res, next) => {
   try {
@@ -26,6 +27,12 @@ router.post("/login", async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+router.get("/test-auth", authMiddleware, (req, res) => {
+  res.send({
+    message: `Thanks for visiting the secret endpoint ${req.user.email}.`,
+  });
 });
 
 module.exports = router;
